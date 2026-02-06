@@ -6,14 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moov | Location Premium Antony</title>
     <meta name="description" content="Location de véhicules premium à Antony. Réservez et payez en ligne. Processus autonome sécurisé.">
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Fonts & Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+
     <!-- Stripe -->
     <script src="https://js.stripe.com/v3/"></script>
 
@@ -46,17 +46,14 @@
             font-family: 'Outfit', sans-serif;
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #050505; }
         ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #2563EB; }
 
-        /* Animations */
         .fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Calendar Styles */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -74,12 +71,11 @@
             transition: all 0.2s;
             border: 1px solid transparent;
         }
-        .cal-day:hover:not(:disabled) { border-color: #2563EB; color: #2563EB; }
+        .cal-day:hover:not(.disabled) { border-color: #2563EB; color: #2563EB; }
         .cal-day.disabled { opacity: 0.3; cursor: not-allowed; background: #121212; }
         .cal-day.selected { background: #2563EB; color: white; border-color: #2563EB; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
         .cal-day.in-range { background: rgba(37, 99, 235, 0.2); color: #60A5FA; border-color: transparent; }
 
-        /* Loader */
         .loader {
             border: 2px solid rgba(255,255,255,0.1);
             border-left-color: #ffffff;
@@ -90,7 +86,6 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Category Tabs */
         .category-tab {
             padding: 12px 24px;
             border-radius: 12px;
@@ -113,7 +108,6 @@
             color: white;
         }
 
-        /* FAQ Styles */
         .faq-item {
             border-bottom: 1px solid #2A2A2A;
             transition: all 0.3s ease;
@@ -139,7 +133,6 @@
 </head>
 <body class="antialiased selection:bg-primary selection:text-white">
 
-    <!-- Header -->
     <header class="fixed w-full z-50 bg-page/80 backdrop-blur-md border-b border-border">
         <div class="container mx-auto px-6 h-20 flex items-center justify-between">
             <a href="#" onclick="navigateToHome()" class="text-3xl font-bold tracking-tighter cursor-pointer">
@@ -156,7 +149,6 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
     <section class="pt-32 pb-20 px-6">
         <div class="container mx-auto text-center max-w-4xl">
             <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
@@ -172,7 +164,6 @@
         </div>
     </section>
 
-    <!-- Trust Badges -->
     <section class="py-12 border-y border-border">
         <div class="container mx-auto px-6">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
@@ -196,8 +187,7 @@
         </div>
     </section>
 
-    <!-- Vehicle Categories -->
-    <section class="py-16 px-6">
+    <section id="flotte" class="py-16 px-6">
         <div class="container mx-auto">
             <div class="flex justify-center gap-4 mb-12">
                 <button id="tab-particuliers" onclick="switchCategory('particuliers')" class="category-tab active">
@@ -208,14 +198,10 @@
                 </button>
             </div>
 
-            <!-- Vehicle Grid -->
-            <div id="vehicle-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <!-- Vehicles will be loaded here by JavaScript -->
-            </div>
+            <div id="vehicle-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"></div>
         </div>
     </section>
 
-    <!-- How It Works -->
     <section id="fonctionnement" class="py-20 px-6 bg-card">
         <div class="container mx-auto">
             <h2 class="text-3xl font-bold text-center mb-12">Comment ça marche</h2>
@@ -242,12 +228,9 @@
                     <p class="text-muted">150km inclus par jour, assurance tous risques, retour simplifié.</p>
                 </div>
             </div>
-                </div>
-            </div>
         </div>
     </section>
 
-    <!-- FAQ Section -->
     <section id="faq" class="py-20 px-6">
         <div class="container mx-auto max-w-3xl">
             <h2 class="text-3xl font-bold text-center mb-12">Questions fréquentes</h2>
@@ -283,7 +266,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="bg-card border-t border-border py-12">
         <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="text-2xl font-bold">
@@ -299,7 +281,6 @@
         </div>
     </footer>
 
-    <!-- Booking Modal -->
     <div id="booking-modal" class="fixed inset-0 z-[100] hidden">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeBookingModal()"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4">
@@ -310,9 +291,8 @@
                         <i class="fas fa-times text-2xl"></i>
                     </button>
                 </div>
-                
+
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Left Column: Vehicle Info & Calendar -->
                     <div>
                         <div class="mb-8">
                             <img id="modal-vehicle-image" src="" alt="" class="w-full h-48 object-cover rounded-2xl mb-4">
@@ -328,7 +308,6 @@
                             </div>
                         </div>
 
-                        <!-- Calendar -->
                         <div class="mb-6">
                             <h3 class="text-lg font-bold mb-4">Choisissez vos dates</h3>
                             <div class="flex justify-between items-center mb-4">
@@ -349,9 +328,7 @@
                                 <div class="text-center text-sm text-muted">Sam</div>
                                 <div class="text-center text-sm text-muted">Dim</div>
                             </div>
-                            <div id="calendar-days" class="calendar-grid">
-                                <!-- Calendar days will be generated here -->
-                            </div>
+                            <div id="calendar-days" class="calendar-grid"></div>
                         </div>
 
                         <div class="bg-input rounded-xl p-4 mb-6">
@@ -366,10 +343,9 @@
                         </div>
                     </div>
 
-                    <!-- Right Column: Booking Form -->
                     <div>
                         <h3 class="text-lg font-bold mb-6">Vos informations</h3>
-                        
+
                         <div class="space-y-4 mb-8">
                             <div>
                                 <label class="block text-sm font-medium mb-2">Nom complet</label>
@@ -389,7 +365,6 @@
                             </div>
                         </div>
 
-                        <!-- Price Summary -->
                         <div class="bg-input rounded-xl p-6 mb-6">
                             <h4 class="font-bold mb-4">Récapitulatif</h4>
                             <div class="space-y-3">
@@ -411,7 +386,7 @@
                             </div>
                         </div>
 
-                        <button  id="confirm-booking-btn" onclick="processBooking()" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-4 rounded-xl transition-all">
+                        <button id="confirm-booking-btn" onclick="processBooking()" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-4 rounded-xl transition-all">
                             Payer et réserver
                         </button>
                         <p class="text-sm text-muted text-center mt-4">
@@ -423,12 +398,10 @@
         </div>
     </div>
 
-    <!-- ADMIN ACCESS LINK -->
     <button onclick="openAdminLogin()" class="fixed bottom-6 right-6 z-50 w-10 h-10 bg-card border border-border rounded-full flex items-center justify-center text-muted hover:text-white hover:border-primary transition-all cursor-pointer" title="Accès administrateur">
         <i class="fas fa-cog text-sm"></i>
     </button>
 
-    <!-- ADMIN LOGIN MODAL -->
     <div id="admin-login-modal" class="fixed inset-0 z-[110] hidden">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" onclick="closeAdminLogin()"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4">
@@ -444,7 +417,6 @@
         </div>
     </div>
 
-    <!-- ADMIN PANEL -->
     <div id="admin-panel" class="fixed inset-0 z-[120] hidden">
         <div class="absolute inset-0 bg-page">
             <div class="container mx-auto px-6 py-8 h-full overflow-y-auto">
@@ -455,7 +427,6 @@
                     </button>
                 </div>
 
-                <!-- Admin Calendar -->
                 <div class="bg-card rounded-2xl border border-border p-6 mb-8">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-bold">Calendrier des réservations</h2>
@@ -469,102 +440,44 @@
                             </button>
                         </div>
                     </div>
-                    <div id="admin-calendar" class="calendar-grid">
-                        <!-- Admin calendar will be generated here -->
-                    </div>
+                    <div id="admin-calendar" class="calendar-grid"></div>
                 </div>
 
-                <!-- Reservations List -->
                 <div class="bg-card rounded-2xl border border-border p-6">
                     <h2 class="text-xl font-bold mb-6">Réservations en cours</h2>
-                    <div id="admin-reservations-list">
-                        <!-- Reservations will be loaded here -->
-                    </div>
+                    <div id="admin-reservations-list"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Configuration
-        const API_BASE = ""; // ex: "https://api.moov-votre-domaine.fr" (laisser vide si reverse proxy / même domaine)
+        const API_BASE = "";
         const ADMIN_SESSION_KEY = "moov_admin_session";
         const ADMIN_TOKEN_KEY = "moov_admin_token";
 
-        // Données des véhicules
         const vehicles = {
             particuliers: [
-                {
-                    id: 1,
-                    name: "Peugeot 208 GT Auto",
-                    category: "particuliers",
-                    image: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&h=600&fit=crop",
-                    priceWeek: 65,
-                    priceWeekend: 75,
-                    kmExtra: 0.25,
-                    deposit: 1000,
-                    description: "Berline compacte sportive - Boîte automatique",
-                    seats: 5,
-                    luggage: 3,
-                    features: ["Climatisation", "GPS", "Camera de recul", "Toit ouvrant"]
-                },
-                {
-                    id: 2,
-                    name: "Volkswagen Polo 6",
-                    category: "particuliers",
-                    image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop",
-                    priceWeek: 55,
-                    priceWeekend: 65,
-                    kmExtra: 0.25,
-                    deposit: 800,
-                    description: "Citadine élégante - Finition United",
-                    seats: 5,
-                    luggage: 2,
-                    features: ["Climatisation", "Apple CarPlay", "Régulateur de vitesse", "Sièges chauffants"]
-                }
+                { id: 1, name: "Peugeot 208 GT Auto", category: "particuliers", image: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&h=600&fit=crop", priceWeek: 65, priceWeekend: 75, kmExtra: 0.25, deposit: 1000, description: "Berline compacte sportive - Boîte automatique", seats: 5, luggage: 3, features: ["Climatisation", "GPS", "Camera de recul", "Toit ouvrant"] },
+                { id: 2, name: "Volkswagen Polo 6", category: "particuliers", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop", priceWeek: 55, priceWeekend: 65, kmExtra: 0.25, deposit: 800, description: "Citadine élégante - Finition United", seats: 5, luggage: 2, features: ["Climatisation", "Apple CarPlay", "Régulateur de vitesse", "Sièges chauffants"] }
             ],
             utilitaires: [
-                {
-                    id: 3,
-                    name: "Citroën Jumpy",
-                    category: "utilitaires",
-                    image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop",
-                    priceWeek: 55,
-                    priceWeekend: 68,
-                    kmExtra: 0.30,
-                    deposit: 1200,
-                    description: "Utilitaire 9m³ - Diesel",
-                    seats: 3,
-                    luggage: "9m³",
-                    features: ["Hayon arrière", "Régulateur", "Bluetooth", "Grand volume"]
-                },
-                {
-                    id: 4,
-                    name: "Opel Movano 12m³",
-                    category: "utilitaires",
-                    image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop",
-                    priceWeek: 63,
-                    priceWeekend: 76,
-                    kmExtra: 0.30,
-                    deposit: 1500,
-                    description: "Grand utilitaire 12m³ - Diesel",
-                    seats: 3,
-                    luggage: "12m³",
-                    features: ["Hayon élévateur", "Caméra de recul", "Climatisation", "Grande autonomie"]
-                }
+                { id: 3, name: "Citroën Jumpy", category: "utilitaires", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop", priceWeek: 55, priceWeekend: 68, kmExtra: 0.30, deposit: 1200, description: "Utilitaire 9m³ - Diesel", seats: 3, luggage: "9m³", features: ["Hayon arrière", "Régulateur", "Bluetooth", "Grand volume"] },
+                { id: 4, name: "Opel Movano 12m³", category: "utilitaires", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop", priceWeek: 63, priceWeekend: 76, kmExtra: 0.30, deposit: 1500, description: "Grand utilitaire 12m³ - Diesel", seats: 3, luggage: "12m³", features: ["Hayon élévateur", "Caméra de recul", "Climatisation", "Grande autonomie"] }
             ]
         };
 
-        // Données de réservation (simulées)
-        let bookings = []; // bookings publics (plages) chargés depuis le backend
+        let bookings = [];
         let currentVehicle = null;
+        let selectedDates = { start: null, end: null };
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let adminCurrentMonth = new Date().getMonth();
+        let adminCurrentYear = new Date().getFullYear();
 
-        // Helpers dates (ISO local - évite les décalages UTC)
-        function pad2(n){ return String(n).padStart(2,'0'); }
-        function toLocalISO(d){
-            return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-        }
-        function todayISO(){
+        function pad2(n) { return String(n).padStart(2, '0'); }
+        function toLocalISO(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
+        function todayISO() {
             const now = new Date();
             return toLocalISO(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
         }
@@ -581,45 +494,31 @@
             }
         }
 
-        let selectedDates = { start: null, end: null };
-        let currentMonth = new Date().getMonth();
-        let currentYear = new Date().getFullYear();
-        let adminCurrentMonth = new Date().getMonth();
-        let adminCurrentYear = new Date().getFullYear();
-
-        // Navigation functions
         function navigateToHome() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function navigateToFAQ() {
-            // Dans une vraie implémentation, cela ouvrirait la page FAQ séparée
             scrollToSection('faq');
         }
 
         function scrollToSection(sectionId) {
             const element = document.getElementById(sectionId);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-            }
+            if (element) element.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Vehicle category switching
         function switchCategory(category) {
-            // Update active tab
             document.getElementById('tab-particuliers').classList.toggle('active', category === 'particuliers');
             document.getElementById('tab-utilitaires').classList.toggle('active', category === 'utilitaires');
-            
-            // Load vehicles
             loadVehicles(category);
         }
 
         function loadVehicles(category) {
             const grid = document.getElementById('vehicle-grid');
             grid.innerHTML = '';
-            
+
             vehicles[category].forEach(vehicle => {
-                const vehicleCard = `
+                grid.innerHTML += `
                     <div class="bg-card border border-border rounded-2xl p-6 hover:border-primary/50 transition-all cursor-pointer" onclick="openBookingModal(${vehicle.id})">
                         <img src="${vehicle.image}" alt="${vehicle.name}" class="w-full h-48 object-cover rounded-xl mb-4">
                         <h3 class="text-xl font-bold mb-2">${vehicle.name}</h3>
@@ -629,49 +528,40 @@
                                 <div class="text-2xl font-bold">${vehicle.priceWeek}€</div>
                                 <div class="text-sm text-muted">/jour semaine</div>
                             </div>
-                            <div class="text-primary">
-                                <i class="fas fa-arrow-right"></i>
-                            </div>
+                            <div class="text-primary"><i class="fas fa-arrow-right"></i></div>
                         </div>
                     </div>
                 `;
-                grid.innerHTML += vehicleCard;
             });
         }
 
-        // Booking modal functions
         function openBookingModal(vehicleId) {
-            // Find vehicle
             let vehicle = null;
             for (const category in vehicles) {
                 vehicle = vehicles[category].find(v => v.id === vehicleId);
                 if (vehicle) break;
             }
-            
             if (!vehicle) return;
-            
+
             currentVehicle = vehicle;
             selectedDates = { start: null, end: null };
-            
-            // Update modal content
+
             document.getElementById('modal-vehicle-title').textContent = `Réservation - ${vehicle.name}`;
             document.getElementById('modal-vehicle-image').src = vehicle.image;
             document.getElementById('modal-vehicle-image').alt = vehicle.name;
             document.getElementById('modal-vehicle-name').textContent = vehicle.name;
             document.getElementById('modal-vehicle-details').textContent = vehicle.description;
             document.getElementById('modal-vehicle-price').textContent = `${vehicle.priceWeek}€`;
-            
-            // Reset form
+
             document.getElementById('booking-name').value = '';
             document.getElementById('booking-email').value = '';
             document.getElementById('booking-phone').value = '';
             document.getElementById('booking-notes').value = '';
-            
-            // Update calendar
+
             updateCalendar();
+            updateSelectedDatesDisplay();
             updatePriceSummary();
-            
-            // Show modal
+
             document.getElementById('booking-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
@@ -681,47 +571,37 @@
             document.body.style.overflow = '';
         }
 
-        // Calendar functions
         function updateCalendar() {
             const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
             document.getElementById('current-month').textContent = `${monthNames[currentMonth]} ${currentYear}`;
-            
+
             const firstDay = new Date(currentYear, currentMonth, 1);
             const lastDay = new Date(currentYear, currentMonth + 1, 0);
             const startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-            
+
             let calendarHTML = '';
-            
-            // Add empty cells for days before the first day of the month
             for (let i = 0; i < startingDay; i++) {
                 calendarHTML += '<div class="cal-day disabled"></div>';
             }
-            
-            // Add days of the month
+
             for (let day = 1; day <= lastDay.getDate(); day++) {
                 const date = new Date(currentYear, currentMonth, day);
                 const dateStr = toLocalISO(date);
                 const isPast = dateStr < todayISO();
                 const isBooked = isDateBooked(dateStr, currentVehicle?.id);
                 const isSelected = selectedDates.start === dateStr || selectedDates.end === dateStr;
-                const isInRange = selectedDates.start && selectedDates.end && 
-                                 date >= new Date(selectedDates.start) && 
-                                 date <= new Date(selectedDates.end);
-                
+                const isInRange = selectedDates.start && selectedDates.end &&
+                    date >= new Date(selectedDates.start) &&
+                    date <= new Date(selectedDates.end);
+
                 let dayClass = 'cal-day';
                 if (isBooked || isPast) dayClass += ' disabled';
                 if (isSelected) dayClass += ' selected';
                 if (isInRange && !isSelected) dayClass += ' in-range';
-                
-                calendarHTML += `
-                    <div class="${dayClass}" 
-                         onclick=\"${(!isBooked && !isPast) ? `selectDate('${dateStr}')` : ''}\"
-                         ${(isBooked || isPast) ? 'disabled' : ''}>
-                        ${day}
-                    </div>
-                `;
+
+                calendarHTML += `<div class="${dayClass}" onclick="${(!isBooked && !isPast) ? `selectDate('${dateStr}')` : ''}">${day}</div>`;
             }
-            
+
             document.getElementById('calendar-days').innerHTML = calendarHTML;
         }
 
@@ -738,43 +618,30 @@
         }
 
         function selectDate(dateStr) {
-            // Bloque toute sélection dans le passé
             if (dateStr < todayISO()) return;
 
             if (!selectedDates.start || (selectedDates.start && selectedDates.end)) {
-                // Start new selection
                 selectedDates = { start: dateStr, end: null };
             } else if (selectedDates.start && !selectedDates.end) {
-                // Complete selection
-                const startDate = new Date(selectedDates.start);
-                const endDate = new Date(dateStr);
-                
-                if (endDate < startDate) {
+                if (dateStr < selectedDates.start) {
                     selectedDates = { start: dateStr, end: selectedDates.start };
                 } else {
                     selectedDates.end = dateStr;
                 }
-                
-                // Check if any date in range is booked
-            if (selectedDates.start && selectedDates.end) {
-                // Ensure start <= end
-                if (selectedDates.end < selectedDates.start) {
-                    const tmp = selectedDates.start;
-                    selectedDates.start = selectedDates.end;
-                    selectedDates.end = tmp;
-                }
 
-                let currentDate = new Date(selectedDates.start);
-                const endDate = new Date(selectedDates.end);
+                if (selectedDates.start && selectedDates.end) {
+                    let currentDate = new Date(selectedDates.start);
+                    const endDate = new Date(selectedDates.end);
 
-                while (currentDate <= endDate) {
-                    const checkDate = toLocalISO(currentDate);
-                    if (isDateBooked(checkDate, currentVehicle?.id)) {
-                        alert("Certaines dates dans cette plage sont déjà réservées.");
-                        selectedDates = { start: null, end: null };
-                        break;
+                    while (currentDate <= endDate) {
+                        const checkDate = toLocalISO(currentDate);
+                        if (isDateBooked(checkDate, currentVehicle?.id)) {
+                            alert("Certaines dates dans cette plage sont déjà réservées.");
+                            selectedDates = { start: null, end: null };
+                            break;
+                        }
+                        currentDate.setDate(currentDate.getDate() + 1);
                     }
-                    currentDate.setDate(currentDate.getDate() + 1);
                 }
             }
 
@@ -790,12 +657,11 @@
         function updateSelectedDatesDisplay() {
             const display = document.getElementById('selected-dates-display');
             const daysCount = document.getElementById('days-count');
-            
+
             if (selectedDates.start && selectedDates.end) {
                 const start = new Date(selectedDates.start);
                 const end = new Date(selectedDates.end);
                 const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-                
                 display.textContent = `${formatDate(start)} - ${formatDate(end)}`;
                 daysCount.textContent = days;
             } else if (selectedDates.start) {
@@ -812,30 +678,30 @@
         }
 
         function updatePriceSummary() {
-            if (!selectedDates.start || !selectedDates.end || !currentVehicle) return;
-            
+            if (!selectedDates.start || !selectedDates.end || !currentVehicle) {
+                document.getElementById('price-base').textContent = '0€';
+                document.getElementById('price-deposit').textContent = currentVehicle ? `${currentVehicle.deposit}€` : '0€';
+                document.getElementById('price-total').textContent = '0€';
+                return;
+            }
+
             const start = new Date(selectedDates.start);
             const end = new Date(selectedDates.end);
-            const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-            
-            // Calculate price based on weekdays vs weekends
             let totalPrice = 0;
             let currentDate = new Date(start);
-            
+
             while (currentDate <= end) {
                 const dayOfWeek = currentDate.getDay();
                 const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
                 totalPrice += isWeekend ? currentVehicle.priceWeekend : currentVehicle.priceWeek;
                 currentDate.setDate(currentDate.getDate() + 1);
             }
-            
+
             document.getElementById('price-base').textContent = `${totalPrice}€`;
             document.getElementById('price-deposit').textContent = `${currentVehicle.deposit}€`;
             document.getElementById('price-total').textContent = `${totalPrice}€`;
         }
 
-        // Booking process
-        // Booking process (Stripe Checkout)
         async function processBooking() {
             const btn = document.getElementById('confirm-booking-btn');
             const name = document.getElementById('booking-name').value?.trim();
@@ -847,23 +713,19 @@
                 alert("Veuillez remplir tous les champs obligatoires.");
                 return;
             }
-
             if (!selectedDates.start || !selectedDates.end) {
                 alert("Veuillez sélectionner des dates de location.");
                 return;
             }
-
             if (selectedDates.start < todayISO()) {
                 alert("Veuillez sélectionner des dates à partir d'aujourd'hui.");
                 return;
             }
-
             if (!currentVehicle) {
                 alert("Veuillez sélectionner un véhicule.");
                 return;
             }
 
-            // UX: bouton loading
             if (btn) {
                 btn.disabled = true;
                 btn.dataset.prevText = btn.textContent;
@@ -886,20 +748,16 @@
                 });
 
                 const data = await res.json().catch(() => ({}));
-
                 if (!res.ok) {
-                    const msg = data?.error || "Impossible de créer la session de paiement.";
-                    alert(msg);
+                    alert(data?.error || "Impossible de créer la session de paiement.");
                     return;
                 }
-
                 if (!data?.url) {
                     alert("Réponse Stripe invalide (URL manquante).");
                     return;
                 }
 
                 window.location.href = data.url;
-
             } catch (e) {
                 console.error(e);
                 alert("Erreur réseau. Réessayez.");
@@ -911,75 +769,13 @@
             }
         }
 
-            
-            if (!selectedDates.start || !selectedDates.end) {
-                alert("Veuillez sélectionner des dates de location.");
-                return;
-            }
-            
-            // Simulate Stripe payment
-            const booking = {
-                id: Date.now(),
-                vehicleId: currentVehicle.id,
-                vehicleName: currentVehicle.name,
-                customerName: name,
-                customerEmail: email,
-                customerPhone: phone,
-                startDate: selectedDates.start,
-                endDate: selectedDates.end,
-                totalPrice: calculateTotalPrice(),
-                deposit: currentVehicle.deposit,
-                status: 'confirmed',
-                createdAt: new Date().toISOString()
-            };
-            
-            bookings.push(booking);
-            // stocké côté serveur via webhook Stripe
-            
-            // Send confirmation email (simulated)
-            sendConfirmationEmail(booking);
-            
-            alert(`Réservation confirmée ! Un email de confirmation a été envoyé à ${email}`);
-            closeBookingModal();
-            
-            // Reset selection
-            selectedDates = { start: null, end: null };
-        }
-
-        function calculateTotalPrice() {
-            if (!selectedDates.start || !selectedDates.end || !currentVehicle) return 0;
-            
-            const start = new Date(selectedDates.start);
-            const end = new Date(selectedDates.end);
-            let totalPrice = 0;
-            let currentDate = new Date(start);
-            
-            while (currentDate <= end) {
-                const dayOfWeek = currentDate.getDay();
-                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-                totalPrice += isWeekend ? currentVehicle.priceWeekend : currentVehicle.priceWeek;
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-            
-            return totalPrice;
-        }
-
-        function sendConfirmationEmail(booking) {
-            // Simulated email sending
-            console.log('Email envoyé à:', booking.customerEmail);
-            console.log('Détails de la réservation:', booking);
-        }
-
-        // FAQ functions
         function toggleFAQ(number) {
             const answer = document.getElementById(`faq-answer-${number}`);
             const icon = document.getElementById(`faq-icon-${number}`);
-            
             answer.classList.toggle('open');
             icon.classList.toggle('rotate-180');
         }
 
-        // Admin functions
         function openAdminLogin() {
             document.getElementById('admin-login-modal').classList.remove('hidden');
             document.getElementById('admin-password-input').value = '';
@@ -1038,39 +834,31 @@
         function updateAdminCalendar() {
             const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
             document.getElementById('admin-current-month').textContent = `${monthNames[adminCurrentMonth]} ${adminCurrentYear}`;
-            
+
             const firstDay = new Date(adminCurrentYear, adminCurrentMonth, 1);
             const lastDay = new Date(adminCurrentYear, adminCurrentMonth + 1, 0);
             const startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-            
+
             let calendarHTML = '';
-            
-            // Add empty cells for days before the first day of the month
             for (let i = 0; i < startingDay; i++) {
                 calendarHTML += '<div class="cal-day disabled"></div>';
             }
-            
-            // Add days of the month with booking indicators
+
             for (let day = 1; day <= lastDay.getDate(); day++) {
                 const date = new Date(adminCurrentYear, adminCurrentMonth, day);
                 const dateStr = toLocalISO(date);
                 const dayBookings = getBookingsForDate(dateStr);
-                
+
                 let dayClass = 'cal-day';
                 let dayContent = day;
-                
                 if (dayBookings.length > 0) {
                     dayClass += ' bg-red-500/20 text-red-300';
                     dayContent = `<span class="relative">${day}<span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span></span>`;
                 }
-                
-                calendarHTML += `
-                    <div class="${dayClass}" onclick="showDateBookings('${dateStr}')">
-                        ${dayContent}
-                    </div>
-                `;
+
+                calendarHTML += `<div class="${dayClass}" onclick="showDateBookings('${dateStr}')">${dayContent}</div>`;
             }
-            
+
             document.getElementById('admin-calendar').innerHTML = calendarHTML;
         }
 
@@ -1087,7 +875,7 @@
             const dateBookings = getBookingsForDate(dateStr);
             if (dateBookings.length > 0) {
                 alert(`Réservations pour le ${formatDate(new Date(dateStr))}:\n\n` +
-                      dateBookings.map(b => `• ${b.vehicleName} - ${b.customerName}`).join('\n'));
+                      dateBookings.map(b => `• ${b.vehicleName || b.vehicleId} - ${b.customerName || 'Client'}`).join('\n'));
             }
         }
 
@@ -1115,12 +903,8 @@
                             <div class="font-bold">${b.vehicleName}</div>
                             <div class="text-sm ${b.status === 'CONFIRMED' ? 'text-green-400' : 'text-yellow-400'}">${b.status}</div>
                         </div>
-                        <div class="text-sm text-muted mt-2">
-                            ${b.startDate} → ${b.endDate} · ${b.totalPaidEUR}€
-                        </div>
-                        <div class="text-sm text-muted mt-1">
-                            Client: ${b.customerName} — ${b.customerEmail} — ${b.customerPhone}
-                        </div>
+                        <div class="text-sm text-muted mt-2">${b.startDate} → ${b.endDate} · ${b.totalPaidEUR}€</div>
+                        <div class="text-sm text-muted mt-1">Client: ${b.customerName} — ${b.customerEmail} — ${b.customerPhone}</div>
                         ${b.notes ? `<div class="text-sm text-muted mt-1">Notes: ${b.notes}</div>` : ''}
                         <div class="text-xs text-muted mt-2">BookingId: ${b.bookingId}</div>
                     </div>
@@ -1129,13 +913,9 @@
                 list.innerHTML = '<div class="text-muted">Impossible de charger les réservations.</div>';
             }
         }
-// Init par défaut : afficher les véhicules et charger les disponibilités
+
         document.addEventListener('DOMContentLoaded', () => {
-            try {
-                switchCategory('particuliers');
-            } catch (e) {
-                console.warn('Init véhicules: ', e);
-            }
+            switchCategory('particuliers');
             loadBookingsPublic(6);
         });
     </script>
