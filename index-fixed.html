@@ -380,8 +380,8 @@
                                     <span class="text-muted">Caution</span>
                                     <span id="price-deposit">0€</span>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span class="text-muted">Ajustement période</span>
+                                <div id="price-reduction-row" class="flex justify-between hidden">
+                                    <span id="price-reduction-label" class="text-muted">Réduction</span>
                                     <span id="price-demand-adjustment">0€</span>
                                 </div>
                                 <div class="border-t border-border pt-3">
@@ -906,6 +906,7 @@
                 document.getElementById('price-breakdown').textContent = '-';
                 document.getElementById('price-deposit').textContent = currentVehicle ? `${currentVehicle.deposit}€` : '0€';
                 document.getElementById('price-demand-adjustment').textContent = '0€';
+                document.getElementById('price-reduction-row').classList.add('hidden');
                 document.getElementById('price-total').textContent = '0€';
                 return;
             }
@@ -913,15 +914,22 @@
             const start = new Date(selectedDates.start);
             const end = new Date(selectedDates.end);
             const estimate = buildPricingEstimate(start, end, currentVehicle);
-            const demandLabel = `${estimate.demandAdjustment >= 0 ? '+' : ''}${estimate.demandAdjustment}€`;
-
             const days = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
             const avgPerDay = Math.round(estimate.finalPrice / days);
+            const reductionRow = document.getElementById('price-reduction-row');
 
             document.getElementById('price-base').textContent = `${estimate.basePrice}€`;
             document.getElementById('price-breakdown').textContent = `${days} jour(s) × ${avgPerDay}€/jour`;
             document.getElementById('price-deposit').textContent = `${currentVehicle.deposit}€`;
-            document.getElementById('price-demand-adjustment').textContent = demandLabel;
+
+            if (estimate.demandAdjustment < 0) {
+                document.getElementById('price-demand-adjustment').textContent = `${estimate.demandAdjustment}€`;
+                reductionRow.classList.remove('hidden');
+            } else {
+                document.getElementById('price-demand-adjustment').textContent = '0€';
+                reductionRow.classList.add('hidden');
+            }
+
             document.getElementById('price-total').textContent = `${estimate.finalPrice}€`;
         }
 
