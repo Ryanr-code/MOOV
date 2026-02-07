@@ -303,7 +303,7 @@
                                 </div>
                                 <div class="text-right">
                                     <div class="text-2xl font-bold" id="modal-vehicle-price"></div>
-                                    <div class="text-sm text-muted">/jour semaine</div>
+                                    <div class="text-sm text-muted">/jour estimé minimum</div>
                                 </div>
                             </div>
                         </div>
@@ -459,6 +459,8 @@
         const API_BASE = "";
         const ADMIN_SESSION_KEY = "moov_admin_session";
         const ADMIN_TOKEN_KEY = "moov_admin_token";
+        const PRICING_ANALYTICS_KEY = "moov_pricing_analytics";
+        const REQUIRE_BACKEND_PRICING_MATCH = true;
 
         // Règles de demande (similaire à PricingRules / SeasonRules backend)
         const DEMAND_PERIODS = [
@@ -470,9 +472,9 @@
 
         const vehicles = {
             particuliers: [
-                { id: 1, name: "Peugeot 208 GT Auto", category: "particuliers", image: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&h=600&fit=crop", baseWeekday: 65, baseWeekend: 75, minPrice: 55, maxPrice: 95, priceWeek: 65, priceWeekend: 75, kmExtra: 0.25, deposit: 1000, description: "Berline compacte sportive - Boîte automatique", seats: 5, luggage: 3, features: ["Climatisation", "GPS", "Caméra de recul", "Régulateur de vitesse"] },
-                { id: 2, name: "Volkswagen Polo 6", category: "particuliers", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop", baseWeekday: 55, baseWeekend: 65, minPrice: 49, maxPrice: 85, priceWeek: 55, priceWeekend: 65, kmExtra: 0.25, deposit: 800, description: "Citadine élégante - Finition United", seats: 5, luggage: 2, features: ["Climatisation", "Apple CarPlay", "Régulateur de vitesse", "Aide au stationnement"] },
-                { id: 5, name: "Volkswagen Golf 8 Auto", category: "particuliers", image: "https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=800&h=600&fit=crop", baseWeekday: 75, baseWeekend: 75, minPrice: 65, maxPrice: 110, priceWeek: 75, priceWeekend: 75, kmExtra: 0.25, deposit: 1000, description: "Compacte premium - Boîte automatique", seats: 5, luggage: 3, features: ["Climatisation", "Apple CarPlay", "Régulateur adaptatif", "Caméra de recul"] }
+                { id: 1, name: "Peugeot 208 GT Auto", category: "particuliers", image: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&h=600&fit=crop", baseWeekday: 48, baseWeekend: 58, minPrice: 42, maxPrice: 95, priceWeek: 48, priceWeekend: 58, kmExtra: 0.25, deposit: 1000, description: "Berline compacte sportive - Boîte automatique", seats: 5, luggage: 3, features: ["Climatisation", "GPS", "Caméra de recul", "Régulateur de vitesse"] },
+                { id: 2, name: "Volkswagen Polo 6", category: "particuliers", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop", baseWeekday: 45, baseWeekend: 55, minPrice: 39, maxPrice: 85, priceWeek: 45, priceWeekend: 55, kmExtra: 0.25, deposit: 800, description: "Citadine élégante - Finition United", seats: 5, luggage: 2, features: ["Climatisation", "Apple CarPlay", "Régulateur de vitesse", "Aide au stationnement"] },
+                { id: 5, name: "Volkswagen Golf 8 Auto", category: "particuliers", image: "https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=800&h=600&fit=crop", baseWeekday: 57, baseWeekend: 67, minPrice: 49, maxPrice: 110, priceWeek: 57, priceWeekend: 67, kmExtra: 0.25, deposit: 1000, description: "Compacte premium - Boîte automatique", seats: 5, luggage: 3, features: ["Climatisation", "Apple CarPlay", "Régulateur adaptatif", "Caméra de recul"] }
             ],
             utilitaires: [
                 { id: 3, name: "Citroën Jumpy", category: "utilitaires", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop", baseWeekday: 55, baseWeekend: 68, minPrice: 50, maxPrice: 120, priceWeek: 55, priceWeekend: 68, kmExtra: 0.30, deposit: 1200, description: "Utilitaire 9m³ - Diesel", seats: 3, luggage: "9m³", features: ["Hayon arrière", "Régulateur", "Bluetooth", "Grand volume"] },
@@ -508,6 +510,72 @@
 
         function clamp(value, min, max) {
             return Math.max(min, Math.min(max, value));
+        }
+
+        function getPriceBucket(price) {
+            const step = 5;
+            const min = Math.floor(price / step) * step;
+            const max = min + step - 1;
+            return `${min}-${max}`;
+        }
+
+        function pushPricingAnalytics(event) {
+            const payload = {
+                ...event,
+                at: new Date().toISOString()
+            };
+
+            try {
+                const current = JSON.parse(localStorage.getItem(PRICING_ANALYTICS_KEY) || '[]');
+                current.push(payload);
+                localStorage.setItem(PRICING_ANALYTICS_KEY, JSON.stringify(current.slice(-1000)));
+            } catch (e) {
+                console.warn('Impossible de stocker les analytics de prix en local.', e);
+            }
+
+            fetch(`${API_BASE}/api/pricing-metrics`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(() => {
+                // silencieux: le localStorage garde une trace en fallback
+            });
+        }
+
+        function trackVehicleExposure(vehicle) {
+            const displayedMin = getVehicleDisplayMinPrice(vehicle);
+            pushPricingAnalytics({
+                type: 'vehicle_exposure',
+                vehicleId: vehicle.id,
+                category: vehicle.category,
+                displayedMinPrice: displayedMin,
+                priceBucket: getPriceBucket(displayedMin)
+            });
+        }
+
+        function trackVehicleCardClick(vehicle) {
+            const displayedMin = getVehicleDisplayMinPrice(vehicle);
+            pushPricingAnalytics({
+                type: 'vehicle_click',
+                vehicleId: vehicle.id,
+                category: vehicle.category,
+                displayedMinPrice: displayedMin,
+                priceBucket: getPriceBucket(displayedMin)
+            });
+        }
+
+        function getVehicleDisplayMinPrice(vehicle) {
+            const vehicleType = getVehicleType(vehicle);
+            const seasonFactors = DEMAND_PERIODS
+                .filter(rule => rule.category === 'all' || rule.category === vehicleType)
+                .map(rule => Number(rule.factor));
+            const seasonalMin = Math.min(1, ...(seasonFactors.length ? seasonFactors : [1]));
+
+            const occupancyMin = 0.90;
+            const lastMinuteMin = 0.90;
+            const theoretical = getVehicleBaseWeekday(vehicle) * seasonalMin * occupancyMin * lastMinuteMin;
+            const clamped = clamp(theoretical, Number(vehicle.minPrice ?? 0), Number(vehicle.maxPrice ?? theoretical));
+            return Math.round(clamped);
         }
 
 
@@ -547,15 +615,16 @@
             grid.innerHTML = '';
 
             vehicles[category].forEach(vehicle => {
+                trackVehicleExposure(vehicle);
                 grid.innerHTML += `
-                    <div class="bg-card border border-border rounded-2xl p-6 hover:border-primary/50 transition-all cursor-pointer" onclick="openBookingModal(${vehicle.id})">
+                    <div class="bg-card border border-border rounded-2xl p-6 hover:border-primary/50 transition-all cursor-pointer" onclick="trackVehicleCardClick(vehicles['${category}'].find(v => v.id === ${vehicle.id})); openBookingModal(${vehicle.id})">
                         <img src="${vehicle.image}" alt="${vehicle.name}" class="w-full h-48 object-cover rounded-xl mb-4">
                         <h3 class="text-xl font-bold mb-2">${vehicle.name}</h3>
                         <p class="text-muted mb-4">${vehicle.description}</p>
                         <div class="flex justify-between items-center">
                             <div>
-                                <div class="text-2xl font-bold">${getVehicleBaseWeekday(vehicle)}€</div>
-                                <div class="text-sm text-muted">/jour semaine</div>
+                                <div class="text-2xl font-bold">${getVehicleDisplayMinPrice(vehicle)}€</div>
+                                <div class="text-sm text-muted">/jour estimé minimum</div>
                             </div>
                             <div class="text-primary"><i class="fas fa-arrow-right"></i></div>
                         </div>
@@ -580,7 +649,7 @@
             document.getElementById('modal-vehicle-image').alt = vehicle.name;
             document.getElementById('modal-vehicle-name').textContent = vehicle.name;
             document.getElementById('modal-vehicle-details').textContent = vehicle.description;
-            document.getElementById('modal-vehicle-price').textContent = `${getVehicleBaseWeekday(vehicle)}€`;
+            document.getElementById('modal-vehicle-price').textContent = `${getVehicleDisplayMinPrice(vehicle)}€`;
 
             document.getElementById('booking-name').value = '';
             document.getElementById('booking-email').value = '';
@@ -767,6 +836,7 @@
             let adjustedPrice = 0;
             let cursor = new Date(start);
             const occupancyFactor = getRolling30OccupancyFactor(vehicle);
+            const dailyBreakdown = [];
 
             while (cursor <= end) {
                 const dayOfWeek = cursor.getDay();
@@ -779,9 +849,23 @@
                     * occupancyFactor
                     * getLastMinuteFactor(cursor);
 
+                const seasonalFactor = getSeasonalFactor(cursor, vehicle);
+                const bridgeFactor = getBridgeAndEndMonthFactor(cursor, vehicle);
+                const lastMinuteFactor = getLastMinuteFactor(cursor);
+
                 const clamped = clamp(raw, Number(vehicle.minPrice ?? baseDay), Number(vehicle.maxPrice ?? baseDay));
                 basePrice += baseDay;
                 adjustedPrice += clamped;
+                dailyBreakdown.push({
+                    date: toLocalISO(cursor),
+                    baseDay,
+                    seasonalFactor,
+                    bridgeFactor,
+                    occupancyFactor,
+                    lastMinuteFactor,
+                    raw: Math.round(raw * 100) / 100,
+                    clamped: Math.round(clamped)
+                });
                 cursor.setDate(cursor.getDate() + 1);
             }
 
@@ -790,8 +874,26 @@
                 basePrice: Math.round(basePrice),
                 finalPrice,
                 demandAdjustment: finalPrice - Math.round(basePrice),
-                occupancyFactor
+                occupancyFactor,
+                dailyBreakdown
             };
+        }
+
+        function isPricingConsistent(clientEstimate, serverEstimate) {
+            if (!clientEstimate || !serverEstimate) return false;
+            if (Math.round(clientEstimate.finalPrice) !== Math.round(serverEstimate.finalPrice)) return false;
+            if (Math.round(clientEstimate.basePrice) !== Math.round(serverEstimate.basePrice)) return false;
+
+            const clientDays = Array.isArray(clientEstimate.dailyBreakdown) ? clientEstimate.dailyBreakdown : [];
+            const serverDays = Array.isArray(serverEstimate.dailyBreakdown) ? serverEstimate.dailyBreakdown : [];
+            if (clientDays.length !== serverDays.length) return false;
+
+            for (let i = 0; i < clientDays.length; i++) {
+                if (clientDays[i].date !== serverDays[i].date) return false;
+                if (Math.round(clientDays[i].clamped) !== Math.round(serverDays[i].clamped)) return false;
+            }
+
+            return true;
         }
 
         function updatePriceSummary() {
@@ -846,6 +948,13 @@
 
             try {
                 const estimate = buildPricingEstimate(new Date(selectedDates.start), new Date(selectedDates.end), currentVehicle);
+                pushPricingAnalytics({
+                    type: 'checkout_attempt',
+                    vehicleId: currentVehicle.id,
+                    displayedMinPrice: getVehicleDisplayMinPrice(currentVehicle),
+                    estimatedTotal: estimate.finalPrice,
+                    priceBucket: getPriceBucket(getVehicleDisplayMinPrice(currentVehicle))
+                });
                 const payload = {
                     vehicleId: currentVehicle.id,
                     startDate: selectedDates.start,
@@ -870,6 +979,24 @@
                     alert("Réponse Stripe invalide (URL manquante).");
                     return;
                 }
+
+                if (REQUIRE_BACKEND_PRICING_MATCH) {
+                    if (!data?.pricingEstimateServer) {
+                        alert("Validation prix manquante côté serveur. Paiement bloqué par sécurité.");
+                        return;
+                    }
+                    if (!isPricingConsistent(estimate, data.pricingEstimateServer)) {
+                        alert("Le prix recalculé côté serveur diffère de l'estimation. Merci de relancer la réservation.");
+                        return;
+                    }
+                }
+
+                pushPricingAnalytics({
+                    type: 'checkout_redirect',
+                    vehicleId: currentVehicle.id,
+                    estimatedTotal: estimate.finalPrice,
+                    priceBucket: getPriceBucket(getVehicleDisplayMinPrice(currentVehicle))
+                });
 
                 window.location.href = data.url;
             } catch (e) {
