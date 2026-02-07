@@ -376,6 +376,10 @@
                                     <span class="text-muted">Caution</span>
                                     <span id="price-deposit">0€</span>
                                 </div>
+                                <div class="flex justify-between">
+                                    <span class="text-muted">Ajustement période</span>
+                                    <span id="price-demand-adjustment">0€</span>
+                                </div>
                                 <div class="border-t border-border pt-3">
                                     <div class="flex justify-between font-bold">
                                         <span>Total location à payer maintenant</span>
@@ -456,15 +460,23 @@
         const ADMIN_SESSION_KEY = "moov_admin_session";
         const ADMIN_TOKEN_KEY = "moov_admin_token";
 
+        // Règles de demande (similaire à PricingRules / SeasonRules backend)
+        const DEMAND_PERIODS = [
+            { name: "Vacances scolaires", start: "2026-02-14", end: "2026-03-02", category: "car", factor: 1.12 },
+            { name: "Été utilitaires", start: "2026-07-01", end: "2026-08-31", category: "van", factor: 1.30 },
+            { name: "Été voitures", start: "2026-07-01", end: "2026-08-31", category: "car", factor: 1.15 },
+            { name: "Ponts de mai", start: "2026-05-01", end: "2026-05-11", category: "all", factor: 1.15 }
+        ];
+
         const vehicles = {
             particuliers: [
-                { id: 1, name: "Peugeot 208 GT Auto", category: "particuliers", image: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&h=600&fit=crop", priceWeek: 65, priceWeekend: 75, kmExtra: 0.25, deposit: 1000, description: "Berline compacte sportive - Boîte automatique", seats: 5, luggage: 3, features: ["Climatisation", "GPS", "Caméra de recul", "Régulateur de vitesse"] },
-                { id: 2, name: "Volkswagen Polo 6", category: "particuliers", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop", priceWeek: 55, priceWeekend: 65, kmExtra: 0.25, deposit: 800, description: "Citadine élégante - Finition United", seats: 5, luggage: 2, features: ["Climatisation", "Apple CarPlay", "Régulateur de vitesse", "Aide au stationnement"] },
-                { id: 5, name: "Volkswagen Golf 8 Auto", category: "particuliers", image: "https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=800&h=600&fit=crop", priceWeek: 75, priceWeekend: 75, kmExtra: 0.25, deposit: 1000, description: "Compacte premium - Boîte automatique", seats: 5, luggage: 3, features: ["Climatisation", "Apple CarPlay", "Régulateur adaptatif", "Caméra de recul"] }
+                { id: 1, name: "Peugeot 208 GT Auto", category: "particuliers", image: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&h=600&fit=crop", baseWeekday: 65, baseWeekend: 75, minPrice: 55, maxPrice: 95, priceWeek: 65, priceWeekend: 75, kmExtra: 0.25, deposit: 1000, description: "Berline compacte sportive - Boîte automatique", seats: 5, luggage: 3, features: ["Climatisation", "GPS", "Caméra de recul", "Régulateur de vitesse"] },
+                { id: 2, name: "Volkswagen Polo 6", category: "particuliers", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop", baseWeekday: 55, baseWeekend: 65, minPrice: 49, maxPrice: 85, priceWeek: 55, priceWeekend: 65, kmExtra: 0.25, deposit: 800, description: "Citadine élégante - Finition United", seats: 5, luggage: 2, features: ["Climatisation", "Apple CarPlay", "Régulateur de vitesse", "Aide au stationnement"] },
+                { id: 5, name: "Volkswagen Golf 8 Auto", category: "particuliers", image: "https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=800&h=600&fit=crop", baseWeekday: 75, baseWeekend: 75, minPrice: 65, maxPrice: 110, priceWeek: 75, priceWeekend: 75, kmExtra: 0.25, deposit: 1000, description: "Compacte premium - Boîte automatique", seats: 5, luggage: 3, features: ["Climatisation", "Apple CarPlay", "Régulateur adaptatif", "Caméra de recul"] }
             ],
             utilitaires: [
-                { id: 3, name: "Citroën Jumpy", category: "utilitaires", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop", priceWeek: 55, priceWeekend: 68, kmExtra: 0.30, deposit: 1200, description: "Utilitaire 9m³ - Diesel", seats: 3, luggage: "9m³", features: ["Hayon arrière", "Régulateur", "Bluetooth", "Grand volume"] },
-                { id: 4, name: "Opel Movano 12m³", category: "utilitaires", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop", priceWeek: 63, priceWeekend: 76, kmExtra: 0.30, deposit: 1500, description: "Grand utilitaire 12m³ - Diesel", seats: 3, luggage: "12m³", features: ["Hayon élévateur", "Caméra de recul", "Climatisation", "Grande autonomie"] }
+                { id: 3, name: "Citroën Jumpy", category: "utilitaires", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop", baseWeekday: 55, baseWeekend: 68, minPrice: 50, maxPrice: 120, priceWeek: 55, priceWeekend: 68, kmExtra: 0.30, deposit: 1200, description: "Utilitaire 9m³ - Diesel", seats: 3, luggage: "9m³", features: ["Hayon arrière", "Régulateur", "Bluetooth", "Grand volume"] },
+                { id: 4, name: "Opel Movano 12m³", category: "utilitaires", image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&h=600&fit=crop", baseWeekday: 63, baseWeekend: 76, minPrice: 58, maxPrice: 135, priceWeek: 63, priceWeekend: 76, kmExtra: 0.30, deposit: 1500, description: "Grand utilitaire 12m³ - Diesel", seats: 3, luggage: "12m³", features: ["Hayon élévateur", "Caméra de recul", "Climatisation", "Grande autonomie"] }
             ]
         };
 
@@ -482,6 +494,22 @@
             const now = new Date();
             return toLocalISO(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
         }
+        function getVehicleType(vehicle) {
+            return vehicle.category === 'utilitaires' ? 'van' : 'car';
+        }
+
+        function getVehicleBaseWeekday(vehicle) {
+            return Number(vehicle.baseWeekday ?? vehicle.priceWeek ?? 0);
+        }
+
+        function getVehicleBaseWeekend(vehicle) {
+            return Number(vehicle.baseWeekend ?? vehicle.priceWeekend ?? getVehicleBaseWeekday(vehicle));
+        }
+
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
 
         async function loadBookingsPublic(months = 6) {
             try {
@@ -526,7 +554,7 @@
                         <p class="text-muted mb-4">${vehicle.description}</p>
                         <div class="flex justify-between items-center">
                             <div>
-                                <div class="text-2xl font-bold">${vehicle.priceWeek}€</div>
+                                <div class="text-2xl font-bold">${getVehicleBaseWeekday(vehicle)}€</div>
                                 <div class="text-sm text-muted">/jour semaine</div>
                             </div>
                             <div class="text-primary"><i class="fas fa-arrow-right"></i></div>
@@ -552,7 +580,7 @@
             document.getElementById('modal-vehicle-image').alt = vehicle.name;
             document.getElementById('modal-vehicle-name').textContent = vehicle.name;
             document.getElementById('modal-vehicle-details').textContent = vehicle.description;
-            document.getElementById('modal-vehicle-price').textContent = `${vehicle.priceWeek}€`;
+            document.getElementById('modal-vehicle-price').textContent = `${getVehicleBaseWeekday(vehicle)}€`;
 
             document.getElementById('booking-name').value = '';
             document.getElementById('booking-email').value = '';
@@ -678,29 +706,112 @@
             return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
         }
 
+        function getSeasonalFactor(date, vehicle) {
+            const dayIso = toLocalISO(date);
+            const vehicleType = getVehicleType(vehicle);
+            const matchingRules = DEMAND_PERIODS.filter(rule => {
+                const categoryMatch = rule.category === 'all' || rule.category === vehicleType;
+                return categoryMatch && dayIso >= rule.start && dayIso <= rule.end;
+            });
+            return matchingRules.reduce((acc, r) => acc * r.factor, 1);
+        }
+
+        function getBridgeAndEndMonthFactor(date, vehicle) {
+            const day = date.getDate();
+            const isLongWeekendWindow = [1, 2, 3, 4, 8, 9, 10, 11].includes(day) && date.getMonth() === 4; // mai
+            const isEndMonthMoveWindow = (day >= 27 || day <= 3) && getVehicleType(vehicle) === 'van';
+
+            let factor = 1;
+            if (isLongWeekendWindow) factor *= 1.12;
+            if (isEndMonthMoveWindow) factor *= 1.15;
+            return factor;
+        }
+
+        function getRolling30OccupancyFactor(vehicle) {
+            const start = new Date();
+            start.setHours(0, 0, 0, 0);
+            const end = new Date(start);
+            end.setDate(end.getDate() + 29);
+
+            const bookedDays = new Set();
+            bookings.forEach(booking => {
+                if (booking.vehicleId !== vehicle.id) return;
+                const bStart = new Date(booking.startDate);
+                const bEnd = new Date(booking.endDate);
+                const from = bStart > start ? bStart : new Date(start);
+                const to = bEnd < end ? bEnd : new Date(end);
+                const cursor = new Date(from);
+                while (cursor <= to) {
+                    bookedDays.add(toLocalISO(cursor));
+                    cursor.setDate(cursor.getDate() + 1);
+                }
+            });
+
+            const ratio = bookedDays.size / 30;
+            if (ratio < 0.25) return 0.90;
+            if (ratio <= 0.50) return 1;
+            if (ratio <= 0.70) return 1.10;
+            return 1.20;
+        }
+
+        function getLastMinuteFactor(date) {
+            const now = new Date();
+            const startDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const diffHours = (target - startDay) / (1000 * 60 * 60);
+            return diffHours <= 48 ? 0.90 : 1;
+        }
+
+        function buildPricingEstimate(start, end, vehicle) {
+            let basePrice = 0;
+            let adjustedPrice = 0;
+            let cursor = new Date(start);
+            const occupancyFactor = getRolling30OccupancyFactor(vehicle);
+
+            while (cursor <= end) {
+                const dayOfWeek = cursor.getDay();
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                const baseDay = isWeekend ? getVehicleBaseWeekend(vehicle) : getVehicleBaseWeekday(vehicle);
+
+                const raw = baseDay
+                    * getSeasonalFactor(cursor, vehicle)
+                    * getBridgeAndEndMonthFactor(cursor, vehicle)
+                    * occupancyFactor
+                    * getLastMinuteFactor(cursor);
+
+                const clamped = clamp(raw, Number(vehicle.minPrice ?? baseDay), Number(vehicle.maxPrice ?? baseDay));
+                basePrice += baseDay;
+                adjustedPrice += clamped;
+                cursor.setDate(cursor.getDate() + 1);
+            }
+
+            const finalPrice = Math.round(adjustedPrice);
+            return {
+                basePrice: Math.round(basePrice),
+                finalPrice,
+                demandAdjustment: finalPrice - Math.round(basePrice),
+                occupancyFactor
+            };
+        }
+
         function updatePriceSummary() {
             if (!selectedDates.start || !selectedDates.end || !currentVehicle) {
                 document.getElementById('price-base').textContent = '0€';
                 document.getElementById('price-deposit').textContent = currentVehicle ? `${currentVehicle.deposit}€` : '0€';
+                document.getElementById('price-demand-adjustment').textContent = '0€';
                 document.getElementById('price-total').textContent = '0€';
                 return;
             }
 
             const start = new Date(selectedDates.start);
             const end = new Date(selectedDates.end);
-            let totalPrice = 0;
-            let currentDate = new Date(start);
+            const estimate = buildPricingEstimate(start, end, currentVehicle);
+            const demandLabel = `${estimate.demandAdjustment >= 0 ? '+' : ''}${estimate.demandAdjustment}€`;
 
-            while (currentDate <= end) {
-                const dayOfWeek = currentDate.getDay();
-                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-                totalPrice += isWeekend ? currentVehicle.priceWeekend : currentVehicle.priceWeek;
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-
-            document.getElementById('price-base').textContent = `${totalPrice}€`;
+            document.getElementById('price-base').textContent = `${estimate.basePrice}€`;
             document.getElementById('price-deposit').textContent = `${currentVehicle.deposit}€`;
-            document.getElementById('price-total').textContent = `${totalPrice}€`;
+            document.getElementById('price-demand-adjustment').textContent = demandLabel;
+            document.getElementById('price-total').textContent = `${estimate.finalPrice}€`;
         }
 
         async function processBooking() {
@@ -734,12 +845,14 @@
             }
 
             try {
+                const estimate = buildPricingEstimate(new Date(selectedDates.start), new Date(selectedDates.end), currentVehicle);
                 const payload = {
                     vehicleId: currentVehicle.id,
                     startDate: selectedDates.start,
                     endDate: selectedDates.end,
                     customer: { name, email, phone },
-                    notes: notes || ""
+                    notes: notes || "",
+                    pricingEstimate: estimate
                 };
 
                 const res = await fetch(`${API_BASE}/api/checkout`, {
